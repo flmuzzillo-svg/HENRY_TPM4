@@ -45,7 +45,25 @@ Imágenes (JPG/PNG)
           JSON validado (Pydantic)
 ```
 
-**Observabilidad (Langfuse):** Idéntica en ambas versiones.
+**Observabilidad (Langfuse):**
+Ambas versiones están 100% instrumentadas de manera **idéntica** e **idiomática** utilizando la última especificación del SDK de Langfuse (v2), evitando instrumentación manual innecesaria:
+
+* **Trazabilidad Global (`@observe`):** Se utiliza el decorador `@observe` en el orquestador principal (`run_contract_analysis`) y en los agentes/parsers para registrar automáticamente la estructura jerárquica.
+* **Integración Langchain (`CallbackHandler`):** Los agentes LLM (`ChatOpenAI`) envían sus métricas internas de tokens, prompts y latencia automáticamente a través del callback nativo de LangChain (`CallbackHandler`).
+* **Wrapper de OpenAI (`langfuse.openai`):** La extracción OCR Vision se realiza con el wrapper nativo de Langfuse, que calcula automáticamente los tokens de imágenes y latencia del modelo de visión.
+
+#### Jerarquía de Spans en Langfuse
+```
+trace/generation: run_contract_analysis (Orquestador principal)
+  ├── span: parse_contract_image (original)
+  │     └── generation: parse_original_contract (OCR Vision)
+  ├── span: parse_contract_image (enmienda)
+  │     └── generation: parse_amendment_contract (OCR Vision)
+  ├── span: run_contextualization_agent (Agente 1)
+  │     └── generation: ChatOpenAI (LangChain flow)
+  └── span: run_extraction_agent (Agente 2)
+        └── generation: ChatOpenAI (LangChain flow)
+```
 
 ---
 

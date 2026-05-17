@@ -34,13 +34,17 @@ Imágenes (JPG/PNG)
           JSON final validado
 ```
 
-**Observabilidad Langfuse:**
+**Observabilidad Langfuse (Nativa / Idiomática):**
 ```
-trace: contract-analysis
-  ├── span: parse_original_contract
-  ├── span: parse_amendment_contract
-  ├── span: contextualization_agent
-  └── span: extraction_agent
+trace/generation: run_contract_analysis
+  ├── span: parse_contract_image (original)
+  │     └── generation: parse_original_contract (vía Langfuse OpenAI wrapper)
+  ├── span: parse_contract_image (enmienda)
+  │     └── generation: parse_amendment_contract (vía Langfuse OpenAI wrapper)
+  ├── span: run_contextualization_agent
+  │     └── generation: ChatOpenAI (vía CallbackHandler de Langchain)
+  └── span: run_extraction_agent
+        └── generation: ChatOpenAI (vía CallbackHandler de Langchain)
 ```
 
 ---
