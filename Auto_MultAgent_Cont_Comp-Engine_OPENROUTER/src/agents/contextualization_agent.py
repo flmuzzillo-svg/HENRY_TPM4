@@ -18,6 +18,7 @@ import time
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
+from langfuse import observe
 
 # ---------------------------------------------------------------------------
 # Configuración del entorno
@@ -103,10 +104,11 @@ EJEMPLO DE OUTPUT ESPERADO:
 # Función principal del agente
 # ---------------------------------------------------------------------------
 
+@observe(as_type="span")
 def run_contextualization_agent(
     original_text: str,
     amendment_text: str,
-    langfuse_trace=None,
+    callbacks: list = None,
 ) -> str:
     """
     Ejecuta el Agente 1 (Auditor) para construir el mapa estructural
@@ -115,7 +117,7 @@ def run_contextualization_agent(
     Args:
         original_text:   Texto extraído del contrato original por image_parser.
         amendment_text:  Texto extraído de la enmienda por image_parser.
-        langfuse_trace:  Objeto trace de Langfuse (opcional).
+        callbacks:       Lista de callbacks de Langchain (ej: Langfuse CallbackHandler).
 
     Returns:
         Mapa estructural en formato markdown (string).
@@ -151,45 +153,15 @@ Aplica tu proceso de razonamiento paso a paso y genera el MAPA DE CORRESPONDENCI
         HumanMessage(content=user_content),
     ]
 
-    # Crear span en Langfuse si hay un trace activo
-    span = None
-    if langfuse_trace is not None:
-        span = langfuse_trace.span(
-            name="contextualization_agent",
-            input={
-                "original_text_preview": original_text[:300] + "...",
-                "amendment_text_preview": amendment_text[:300] + "...",
-                "model": LLM_MODEL,
-            },
-        )
-
-    start_time = time.time()
-
     try:
-        response = llm.invoke(messages)
-        elapsed_ms = int((time.time() - start_time) * 1000)
+        response = llm.invoke(
+            messages,
+            config={"callbacks": callbacks} if callbacks else None
+        )
         context_map: str = response.content
-
-        if span is not None:
-            span.end(
-                output={"context_map_preview": context_map[:500] + "..."},
-                metadata={
-                    "latency_ms": elapsed_ms,
-                    "model": LLM_MODEL,
-                },
-            )
 
         return context_map
 
     except Exception as exc:
-        elapsed_ms = int((time.time() - start_time) * 1000)
         error_msg = f"Error en ContextualizationAgent: {exc}"
-
-        if span is not None:
-            span.end(
-                output={"error": error_msg},
-                metadata={"latency_ms": elapsed_ms, "status": "error"},
-                level="ERROR",
-            )
-
         raise RuntimeError(error_msg) from exc

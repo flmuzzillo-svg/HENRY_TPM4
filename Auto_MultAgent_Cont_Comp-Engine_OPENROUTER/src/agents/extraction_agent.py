@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import ValidationError
+from langfuse import observe
 
 from src.models import ContractAnalysisResult
 
@@ -97,11 +98,12 @@ EJEMPLO DE OUTPUT JSON ESPERADO:
 # Función principal del agente
 # ---------------------------------------------------------------------------
 
+@observe(as_type="span")
 def run_extraction_agent(
     original_text: str,
     amendment_text: str,
     context_map: str,
-    langfuse_trace=None,
+    callbacks: list = None,
 ) -> ContractAnalysisResult:
     """
     Ejecuta el Agente 2 (Analista) para extraer y clasificar los cambios
@@ -111,7 +113,7 @@ def run_extraction_agent(
         original_text:   Texto extraído del contrato original.
         amendment_text:  Texto extraído de la enmienda.
         context_map:     Mapa estructural generado por el Agente 1 (Auditor).
-        langfuse_trace:  Objeto trace de Langfuse (opcional).
+        callbacks:       Lista de callbacks de Langchain (ej: Langfuse CallbackHandler).
 
     Returns:
         ContractAnalysisResult validado por Pydantic.
@@ -152,24 +154,11 @@ sin ningún texto adicional ni bloques de código markdown."""
         HumanMessage(content=user_content),
     ]
 
-    # Crear span en Langfuse si hay un trace activo
-    span = None
-    if langfuse_trace is not None:
-        span = langfuse_trace.span(
-            name="extraction_agent",
-            input={
-                "context_map_preview": context_map[:300] + "...",
-                "original_text_preview": original_text[:200] + "...",
-                "amendment_text_preview": amendment_text[:200] + "...",
-                "model": LLM_MODEL,
-            },
-        )
-
-    start_time = time.time()
-
     try:
-        response = llm.invoke(messages)
-        elapsed_ms = int((time.time() - start_time) * 1000)
+        response = llm.invoke(
+            messages,
+            config={"callbacks": callbacks} if callbacks else None
+        )
         raw_json: str = response.content.strip()
 
         # Limpiar posibles bloques markdown que el modelo pudiera agregar
@@ -188,29 +177,7 @@ sin ningún texto adicional ni bloques de código markdown."""
                 f"Fallo en la validación Pydantic del output del Agente 2. "
                 f"JSON recibido:\n{raw_json}\n\nError: {val_err}"
             )
-            if span is not None:
-                span.end(
-                    output={"error": error_msg, "raw_json": raw_json[:500]},
-                    metadata={"latency_ms": elapsed_ms, "status": "validation_error"},
-                    level="ERROR",
-                )
             raise RuntimeError(error_msg) from val_err
-
-        if span is not None:
-            span.end(
-                output={
-                    "total_changes": result.total_changes,
-                    "overall_risk": result.overall_risk_assessment,
-                    "changes_preview": [
-                        c.clause_affected for c in result.changes
-                    ],
-                },
-                metadata={
-                    "latency_ms": elapsed_ms,
-                    "model": LLM_MODEL,
-                    "validation": "pydantic_ok",
-                },
-            )
 
         return result
 
@@ -218,14 +185,5 @@ sin ningún texto adicional ni bloques de código markdown."""
         raise  # Re-lanzar errores ya formateados (incluyendo validación)
 
     except Exception as exc:
-        elapsed_ms = int((time.time() - start_time) * 1000)
         error_msg = f"Error en ExtractionAgent: {exc}"
-
-        if span is not None:
-            span.end(
-                output={"error": error_msg},
-                metadata={"latency_ms": elapsed_ms, "status": "error"},
-                level="ERROR",
-            )
-
         raise RuntimeError(error_msg) from exc
