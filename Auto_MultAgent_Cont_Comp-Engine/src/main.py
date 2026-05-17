@@ -21,6 +21,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from langfuse import Langfuse
+from langfuse import observe
+from langfuse.langchain import CallbackHandler
 
 # Asegurar que src/ esté en el path para imports relativos
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -53,6 +55,7 @@ langfuse = Langfuse(
 # Función principal del pipeline
 # ---------------------------------------------------------------------------
 
+@observe(as_type="generation")
 def run_contract_analysis(
     original_image_path: str | Path,
     amendment_image_path: str | Path,
@@ -93,17 +96,9 @@ def run_contract_analysis(
     print(f"{'='*60}\n")
 
     # ------------------------------------------------------------------
-    # Crear trace raíz en Langfuse
+    # Configurar trace raíz en Langfuse
     # ------------------------------------------------------------------
-    trace = langfuse.trace(
-        name="contract-analysis",
-        input={
-            "pair_label": pair_label,
-            "original": str(original_path.resolve()),
-            "amendment": str(amendment_path.resolve()),
-        },
-        tags=["legalmove", "contract-comparison"],
-    )
+    langfuse_handler = CallbackHandler()
 
     try:
         # --------------------------------------------------------------
@@ -113,7 +108,6 @@ def run_contract_analysis(
         original_text = parse_contract_image(
             image_path=original_path,
             document_label="parse_original_contract",
-            langfuse_trace=trace,
         )
         print(f"      ✓ Extraídos {len(original_text)} caracteres del original.\n")
 
@@ -121,7 +115,6 @@ def run_contract_analysis(
         amendment_text = parse_contract_image(
             image_path=amendment_path,
             document_label="parse_amendment_contract",
-            langfuse_trace=trace,
         )
         print(f"      ✓ Extraídos {len(amendment_text)} caracteres de la enmienda.\n")
 
@@ -132,7 +125,7 @@ def run_contract_analysis(
         context_map = run_contextualization_agent(
             original_text=original_text,
             amendment_text=amendment_text,
-            langfuse_trace=trace,
+            callbacks=[langfuse_handler],
         )
         print(f"      ✓ Mapa de correspondencias generado ({len(context_map)} caracteres).\n")
 
@@ -144,30 +137,15 @@ def run_contract_analysis(
             original_text=original_text,
             amendment_text=amendment_text,
             context_map=context_map,
-            langfuse_trace=trace,
+            callbacks=[langfuse_handler],
         )
         print(f"      ✓ {analysis_result.total_changes} cambio(s) identificado(s). "
               f"Riesgo global: {analysis_result.overall_risk_assessment}.\n")
 
         # Registrar resultado final en el trace de Langfuse
-        trace.update(
-            output={
-                "total_changes": analysis_result.total_changes,
-                "overall_risk_assessment": analysis_result.overall_risk_assessment,
-                "clauses_affected": [
-                    c.clause_affected for c in analysis_result.changes
-                ],
-            },
-        )
-
         return analysis_result
 
     except Exception as exc:
-        # Registrar el error en el trace antes de propagar
-        trace.update(
-            output={"error": str(exc)},
-            metadata={"status": "failed"},
-        )
         raise
 
 

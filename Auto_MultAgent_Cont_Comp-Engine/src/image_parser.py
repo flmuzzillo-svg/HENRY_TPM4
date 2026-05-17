@@ -16,7 +16,8 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from langfuse.openai import OpenAI
+from langfuse import observe
 
 # ---------------------------------------------------------------------------
 # Configuración del entorno
@@ -79,23 +80,20 @@ def encode_image_to_base64(image_path: str | Path) -> str:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 
+@observe(as_type="span")
 def parse_contract_image(
     image_path: str | Path,
     document_label: str = "contrato",
-    langfuse_trace=None,
 ) -> str:
     """
     Extrae el texto completo de una imagen de contrato usando GPT-4o Vision.
 
-    Preserva la estructura jerárquica del documento legal. Si se provee
-    un trace de Langfuse, registra la operación como un span hijo.
+    Preserva la estructura jerárquica del documento legal.
 
     Args:
         image_path:      Ruta a la imagen del contrato.
         document_label:  Etiqueta descriptiva para el span de Langfuse
                          (ej: 'parse_original_contract').
-        langfuse_trace:  Objeto trace de Langfuse (opcional). Si es None,
-                         la llamada no se registra en Langfuse.
 
     Returns:
         Texto completo extraído del contrato como string.
@@ -120,25 +118,9 @@ def parse_contract_image(
     # Codificar imagen
     image_b64 = encode_image_to_base64(path)
 
-    # Preparar inputs para el registro en Langfuse
-    span_input = {
-        "image_path": str(path.resolve()),
-        "document_label": document_label,
-        "model": VISION_MODEL,
-    }
-
-    # Crear span en Langfuse si hay un trace activo
-    span = None
-    if langfuse_trace is not None:
-        span = langfuse_trace.span(
-            name=document_label,
-            input=span_input,
-        )
-
-    start_time = time.time()
-
     try:
         response = _openai_client.chat.completions.create(
+            name=document_label,
             model=VISION_MODEL,
             messages=[
                 {"role": "system", "content": VISION_SYSTEM_PROMPT},
@@ -165,35 +147,9 @@ def parse_contract_image(
             max_tokens=4096,
         )
 
-        elapsed_ms = int((time.time() - start_time) * 1000)
         extracted_text: str = response.choices[0].message.content or ""
-
-        # Registrar resultado exitoso en el span de Langfuse
-        if span is not None:
-            usage_meta = {"latency_ms": elapsed_ms, "model": VISION_MODEL}
-            if response.usage is not None:
-                usage_meta.update({
-                    "prompt_tokens": response.usage.prompt_tokens,
-                    "completion_tokens": response.usage.completion_tokens,
-                    "total_tokens": response.usage.total_tokens,
-                })
-            span.end(
-                output={"extracted_text": extracted_text[:500] + "..."},
-                metadata=usage_meta,
-            )
-
         return extracted_text
 
     except Exception as exc:
-        elapsed_ms = int((time.time() - start_time) * 1000)
         error_msg = f"Error en parse_contract_image para '{path.name}': {exc}"
-
-        # Registrar el error en el span de Langfuse antes de relanzar
-        if span is not None:
-            span.end(
-                output={"error": error_msg},
-                metadata={"latency_ms": elapsed_ms, "status": "error"},
-                level="ERROR",
-            )
-
         raise RuntimeError(error_msg) from exc
