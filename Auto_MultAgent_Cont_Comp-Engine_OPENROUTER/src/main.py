@@ -215,5 +215,139 @@ def main():
     print(f"{'='*60}\n")
 
 
+def main():
+    """
+    Ejecuta el pipeline según la opción seleccionada por el usuario.
+    - Test: Ejecuta todos los pares de contratos de prueba en data/test_contracts/.
+    - Ingreso: Solicita al usuario los nombres de los documentos originales y de enmienda.
+    """
+    project_root = Path(__file__).parent.parent
+
+    print("\n" + "=" * 60)
+    print("  Menú de ejecución del pipeline LegalMove")
+    print("=" * 60)
+    print("  1) Test — Ejecutar casos de prueba")
+    print("  2) Ingreso — Procesar documentos específicos")
+    print("  3) Finalizar — Salir del programa")
+    print("=" * 60)
+
+    choice = input("\n  Seleccione una opción (1, 2 o 3): ").strip()
+
+    if choice == "1":
+        _run_test_mode(project_root)
+    elif choice == "2":
+        _run_ingreso_mode(project_root)
+    elif choice == "3":
+        print("\n  Finalizando el programa...\n")
+        sys.exit(0)
+    else:
+        print("\n  Opción no válida. Saliendo...")
+        sys.exit(1)
+
+
+def _run_test_mode(project_root: Path):
+    """Ejecuta el pipeline para todos los pares de contratos disponibles en test_contracts."""
+    contracts_dir = project_root / "data" / "test_contracts"
+
+    if not contracts_dir.exists():
+        print(f"ERROR: No se encontró el directorio de contratos: {contracts_dir}")
+        sys.exit(1)
+
+    originals = sorted(contracts_dir.glob("*__original.*"))
+
+    if not originals:
+        print(f"ERROR: No se encontraron imágenes originales en {contracts_dir}")
+        sys.exit(1)
+
+    all_results = []
+
+    for original_path in originals:
+        pair_name = original_path.stem.replace("__original", "")
+        ext = original_path.suffix
+        amendment_path = contracts_dir / f"{pair_name}__enmienda{ext}"
+
+        if not amendment_path.exists():
+            print(f"  ⚠ Enmienda no encontrada para '{original_path.name}', saltando.\n")
+            continue
+
+        try:
+            result = run_contract_analysis(
+                original_image_path=original_path,
+                amendment_image_path=amendment_path,
+                pair_label=pair_name,
+            )
+
+            result_json = result.model_dump()
+            all_results.append({pair_name: result_json})
+
+            print(f"{'─'*60}")
+            print(f"  RESULTADO — {pair_name}")
+            print(f"{'─'*60}")
+            print(json.dumps(result_json, ensure_ascii=False, indent=2))
+            print()
+
+        except Exception as exc:
+            print(f"\n  X Error procesando '{pair_name}': {exc}\n")
+
+    langfuse.flush()
+
+    print(f"\n{'='*60}")
+    print(f"  Pipeline finalizado. {len(all_results)} par(es) procesado(s).")
+    print(f"  Revisá los traces en: {LANGFUSE_HOST}")
+    print(f"{'='*60}\n")
+
+
+def _run_ingreso_mode(project_root: Path):
+    """Solicita al usuario los nombres de los documentos originales y de enmienda."""
+    contracts_dir = project_root / "data" / "test_contracts"
+
+    if not contracts_dir.exists():
+        print(f"ERROR: No se encontró el directorio de contratos: {contracts_dir}")
+        sys.exit(1)
+
+    print("\n  Ingrese los nombres de los documentos:")
+    original_name = input("    Nombre del documento Original (con extensión): ").strip()
+    amendment_name = input("    Nombre del documento Endoso (con extensión): ").strip()
+
+    original_path = contracts_dir / original_name
+    amendment_path = contracts_dir / amendment_name
+
+    if not original_path.exists():
+        print(f"\nERROR: Documento original no encontrado: {original_path}")
+        sys.exit(1)
+
+    if not amendment_path.exists():
+        print(f"\nERROR: Documento endoso no encontrado: {amendment_path}")
+        sys.exit(1)
+
+    pair_label = original_path.stem.replace("__original", "")
+
+    try:
+        result = run_contract_analysis(
+            original_image_path=original_path,
+            amendment_image_path=amendment_path,
+            pair_label=pair_label,
+        )
+
+        result_json = result.model_dump()
+
+        print(f"\n{'─'*60}")
+        print(f"  RESULTADO — {pair_label}")
+        print(f"{'─'*60}")
+        print(json.dumps(result_json, ensure_ascii=False, indent=2))
+        print()
+
+    except Exception as exc:
+        print(f"\n  X Error procesando documentos: {exc}\n")
+        sys.exit(1)
+
+    langfuse.flush()
+
+    print(f"\n{'='*60}")
+    print(f"  Pipeline finalizado.")
+    print(f"  Revisá los traces en: {LANGFUSE_HOST}")
+    print(f"{'='*60}\n")
+
+
 if __name__ == "__main__":
     main()
