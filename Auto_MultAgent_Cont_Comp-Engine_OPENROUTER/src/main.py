@@ -109,14 +109,14 @@ def run_contract_analysis(
             image_path=original_path,
             document_label="parse_original_contract",
         )
-        print(f"      ✓ Extraídos {len(original_text)} caracteres del original.\n")
+        print(f"      [OK] Extraídos {len(original_text)} caracteres del original.\n")
 
         print("[2/4] Parseando imagen de la enmienda...")
         amendment_text = parse_contract_image(
             image_path=amendment_path,
             document_label="parse_amendment_contract",
         )
-        print(f"      ✓ Extraídos {len(amendment_text)} caracteres de la enmienda.\n")
+        print(f"      [OK] Extraídos {len(amendment_text)} caracteres de la enmienda.\n")
 
         # --------------------------------------------------------------
         # PASO 3: Agente 1 — Contextualización
@@ -127,7 +127,7 @@ def run_contract_analysis(
             amendment_text=amendment_text,
             callbacks=[langfuse_handler],
         )
-        print(f"      ✓ Mapa de correspondencias generado ({len(context_map)} caracteres).\n")
+        print(f"      [OK] Mapa de correspondencias generado ({len(context_map)} caracteres).\n")
 
         # --------------------------------------------------------------
         # PASO 4: Agente 2 — Extracción y validación Pydantic
@@ -139,7 +139,7 @@ def run_contract_analysis(
             context_map=context_map,
             callbacks=[langfuse_handler],
         )
-        print(f"      ✓ {analysis_result.total_changes} cambio(s) identificado(s). "
+        print(f"      [OK] {analysis_result.total_changes} cambio(s) identificado(s). "
               f"Riesgo global: {analysis_result.overall_risk_assessment}.\n")
 
         # Registrar resultado final en el trace de Langfuse

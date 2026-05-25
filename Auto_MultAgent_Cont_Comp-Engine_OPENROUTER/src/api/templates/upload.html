@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Subir contratos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .result-box { margin-top: 20px; padding: 15px; border: 2px solid #4CAF50; border-radius: 5px; background-color: #f9f9f9; }
+        h3 { color: #333; }
+    </style>
+</head>
+<body>
+    <h2>Subir contrato original y enmienda</h2>
+    <form action="/process" method="post" enctype="multipart/form-data">
+        <label for="original">Archivo original:</label>
+        <input type="file" id="original" name="original" accept="image/*,.pdf" required><br><br>
+        <label for="amendment">Archivo de enmienda:</label>
+        <input type="file" id="amendment" name="amendment" accept="image/*,.pdf" required><br><br>
+        <button type="submit">Procesar</button>
+    </form>
+
+    <div id="result" class="result-box" style="display: none;">
+        <h3>Resultado del análisis:</h3>
+        <table id="results-table">
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function processFiles() {
+            const formData = new FormData(document.querySelector('form'));
+            const response = await fetch('/process', { method: 'POST', body: formData });
+            const data = await response.json();
+            displayResults(data);
+        }
+
+        function displayResults(data) {
+            const resultDiv = document.getElementById('result');
+            const tbody = document.querySelector('#results-table tbody');
+            tbody.innerHTML = '';
+
+            for (const [key, value] of Object.entries(data)) {
+                const row = document.createElement('tr');
+                const cellKey = document.createElement('td');
+                const cellValue = document.createElement('td');
+                cellKey.textContent = key;
+                cellValue.textContent = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
+                row.appendChild(cellKey);
+                row.appendChild(cellValue);
+                tbody.appendChild(row);
+            }
+
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
