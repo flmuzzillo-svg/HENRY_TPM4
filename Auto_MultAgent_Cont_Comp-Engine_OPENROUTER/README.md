@@ -145,12 +145,43 @@ data/test_contracts/
 
 ## Ejecución
 
+### 1. Pipeline en consola
+
 ```bash
 # Desde la raíz del proyecto
 python src/main.py
 ```
 
 El sistema procesará todos los pares de contratos en `data/test_contracts/` y mostrará el JSON de análisis en la consola. Los traces completos estarán disponibles en el dashboard de Langfuse.
+
+### 2. Web app con FastAPI
+
+Este proyecto incluye una interfaz web ligera en `src/api/main.py` y un formulario HTML en `src/api/templates/upload.html`.
+
+#### Instalar dependencias adicionales
+
+```bash
+pip install -r requirements.txt
+pip install "uvicorn[standard]"
+```
+
+#### Ejecutar el servidor web
+
+```bash
+uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### Abrir en el navegador
+
+```
+http://127.0.0.1:8000/
+```
+
+#### Uso web
+
+- Sube el contrato original y la enmienda.
+- El servidor guarda los archivos en `src/data/test_contracts/`.
+- El resultado del análisis se devuelve en JSON.
 
 ### Ejemplo de output
 
