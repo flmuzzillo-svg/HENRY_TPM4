@@ -163,9 +163,9 @@ python src/main.py
 
 El sistema procesará todos los pares de contratos en `data/test_contracts/` y mostrará el JSON de análisis en la consola. Los traces completos estarán disponibles en el dashboard de Langfuse.
 
-### 2. Web app con FastAPI
+### 2. Web app con FastAPI - Interfaz Neo Labs
 
-Este proyecto incluye una interfaz web ligera en `src/api/main.py` y un formulario HTML en `src/api/templates/upload.html`.
+Este proyecto incluye una interfaz web profesional con diseño "Fusión Orgánica Premium" en `src/api/main.py` y un formulario HTML estilizado en `src/api/templates/upload.html`.
 
 #### Instalar dependencias adicionales
 
@@ -186,11 +186,26 @@ uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
 http://127.0.0.1:8000/
 ```
 
+#### Interfaz Neo Labs
+
+La interfaz web cuenta con:
+
+- **Diseño Profesional**: Paleta cromática estratégica (Verde Bosque 60%, Oro Metálico 30%, Blanco Nieve 10%)
+- **Tipografías de Autoridad**: IBM Plex Sans + Montserrat para máxima legibilidad
+- **Estructura Narrativa**: 
+  - 🎯 **Gancho**: Título impactante + propuesta de valor
+  - 🔍 **Descubrimiento**: 3 tarjetas destacando capacidades (Análisis Profundo, Velocidad, Precisión)
+  - 🚀 **Llamado a la Acción**: Formulario interactivo con drag-and-drop
+  - 📊 **Resultados**: Visualización profesional con análisis detallado
+
+- **Experiencia UX**: Animaciones suaves, validación en tiempo real, feedback visual inmediato
+- **Responsivo**: Adaptación perfecta a desktop, tablet y mobile
+
 #### Uso web
 
-- Sube el contrato original y la enmienda.
+- Sube el contrato original y la enmienda (drag-and-drop soportado).
 - El servidor guarda los archivos en `src/data/test_contracts/`.
-- El resultado del análisis se devuelve en JSON.
+- El resultado del análisis se devuelve en JSON con visualización completa de cambios detectados.
 
 ### Ejemplo de output
 
@@ -228,6 +243,28 @@ http://127.0.0.1:8000/
 
 ---
 
+## 🎨 Design System Neo Labs
+
+La interfaz web sigue un **Design System profesional** documentado en `DESIGN_SYSTEM.md`.
+
+### Características Visuales
+
+- **Paleta Cromática Estratégica**: Verde Bosque (#2D5016), Oro Metálico (#D4AF37), Blanco Nieve (#F8F9FA), Gris Grafito (#2C3E50)
+- **Regla 60-30-10**: Verde Bosque (60%), Oro Metálico (30%), Blanco/Gris (10%)
+- **Tipografías**: 
+  - **IBM Plex Sans** - Cuerpo de texto, interfaz
+  - **Montserrat** - Titulares, branding
+- **Estructura de Contenido**:
+  - 🎯 **Gancho**: Propuesta de valor impactante
+  - 🔍 **Descubrimiento**: Beneficios y capacidades
+  - 🚀 **CTA**: Formulario interactivo
+  - 📊 **Resultados**: Visualización profesional
+- **Experiencia**: Animaciones suaves, drag-and-drop, responsive design
+
+Para más detalles sobre componentes, colores y guías de contenido, consulta `DESIGN_SYSTEM.md`.
+
+---
+
 ## Stack Técnico
 
 | Tecnología | Versión | Rol |
@@ -238,6 +275,8 @@ http://127.0.0.1:8000/
 | Pydantic | 2.x | Validación estricta de esquemas |
 | Langfuse | 2.x | Observabilidad y trazabilidad |
 | python-dotenv | 1.x | Gestión de variables de entorno |
+| FastAPI | 0.1x+ | Servidor web API |
+| Uvicorn | — | Servidor ASGI |
 
 ---
 

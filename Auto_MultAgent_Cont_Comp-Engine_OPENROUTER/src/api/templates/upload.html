@@ -2,65 +2,815 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Subir contratos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neo Labs - Análisis Inteligente de Contratos</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .result-box { margin-top: 20px; padding: 15px; border: 2px solid #4CAF50; border-radius: 5px; background-color: #f9f9f9; }
-        h3 { color: #333; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --forest-green: #2D5016;
+            --metallic-gold: #D4AF37;
+            --snow-white: #F8F9FA;
+            --graphite-gray: #2C3E50;
+            --light-gray: #E8EAED;
+            --accent-green: #3D7322;
+            --text-dark: #1A1A1A;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: linear-gradient(135deg, var(--snow-white) 0%, #F0F3F0 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header / Logo */
+        header {
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--accent-green) 100%);
+            padding: 2rem 2rem;
+            color: white;
+            box-shadow: 0 4px 20px rgba(45, 80, 22, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--metallic-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--forest-green);
+        }
+
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Hero Section - Gancho */
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--forest-green);
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: var(--graphite-gray);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .hero .description {
+            font-size: 1rem;
+            color: #555;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Discovery Section */
+        .discovery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .discovery-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--metallic-gold);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .discovery-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(45, 80, 22, 0.1);
+        }
+
+        .discovery-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .discovery-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--forest-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .discovery-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Form Section */
+        .form-section {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 3rem;
+            border-top: 4px solid var(--metallic-gold);
+        }
+
+        .form-section h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--forest-green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--graphite-gray);
+            margin-bottom: 0.7rem;
+            font-size: 1rem;
+        }
+
+        .form-group input[type="file"],
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input[type="file"]:focus,
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--metallic-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border: 2px dashed var(--metallic-gold);
+            border-radius: 8px;
+            background: rgba(212, 175, 55, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--forest-green);
+        }
+
+        .file-input-label span {
+            color: var(--metallic-gold);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--accent-green) 100%);
+            color: white;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(45, 80, 22, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--metallic-gold);
+            border: 2px solid var(--metallic-gold);
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--metallic-gold);
+            color: var(--forest-green);
+        }
+
+        /* Results Section */
+        .results-section {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: none;
+            border-top: 4px solid var(--metallic-gold);
+        }
+
+        .results-section.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--forest-green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .results-section h3 .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .results-section h3 .status-high {
+            background: rgba(255, 69, 58, 0.2);
+            color: #D32F2F;
+        }
+
+        .results-section h3 .status-medium {
+            background: rgba(255, 193, 7, 0.2);
+            color: #F57F17;
+        }
+
+        .results-section h3 .status-low {
+            background: rgba(76, 175, 80, 0.2);
+            color: #388E3C;
+        }
+
+        .analysis-summary {
+            background: linear-gradient(135deg, rgba(45, 80, 22, 0.05) 0%, rgba(212, 175, 55, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--metallic-gold);
+        }
+
+        .summary-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .summary-stat:last-child {
+            border-bottom: none;
+        }
+
+        .summary-stat .label {
+            font-weight: 600;
+            color: var(--graphite-gray);
+        }
+
+        .summary-stat .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--forest-green);
+        }
+
+        .changes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .changes-table th {
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--accent-green) 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .changes-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .changes-table tbody tr:hover {
+            background: rgba(45, 80, 22, 0.02);
+        }
+
+        .change-row {
+            display: block;
+            background: white;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--metallic-gold);
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .change-row h4 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--forest-green);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .change-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .change-detail-item label {
+            font-weight: 600;
+            color: var(--metallic-gold);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .change-detail-item p {
+            color: #666;
+            background: var(--snow-white);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0.3rem 0.3rem 0 0;
+        }
+
+        .risk-badge.alto {
+            background: rgba(255, 69, 58, 0.2);
+            color: #D32F2F;
+        }
+
+        .risk-badge.medio {
+            background: rgba(255, 193, 7, 0.2);
+            color: #F57F17;
+        }
+
+        .risk-badge.bajo {
+            background: rgba(76, 175, 80, 0.2);
+            color: #388E3C;
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid var(--light-gray);
+            border-top: 4px solid var(--metallic-gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer / CTA */
+        .footer-cta {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--accent-green) 100%);
+            color: white;
+            border-radius: 16px;
+            margin-top: 3rem;
+        }
+
+        .footer-cta h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-cta p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .form-section,
+            .results-section {
+                padding: 1.5rem;
+            }
+
+            .change-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                flex: 1;
+            }
+        }
+
+        /* Error State */
+        .error-message {
+            background: rgba(255, 69, 58, 0.1);
+            border-left: 4px solid #D32F2F;
+            color: #D32F2F;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <h2>Subir contrato original y enmienda</h2>
-    <form action="/process" method="post" enctype="multipart/form-data">
-        <label for="original">Archivo original:</label>
-        <input type="file" id="original" name="original" accept="image/*,.pdf" required><br><br>
-        <label for="amendment">Archivo de enmienda:</label>
-        <input type="file" id="amendment" name="amendment" accept="image/*,.pdf" required><br><br>
-        <button type="submit">Procesar</button>
-    </form>
+    <!-- Header con Logo Neo Labs -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">◆</div>
+                <div>
+                    <div class="logo-text">Neo Labs</div>
+                    <div class="tagline">Fusión Orgánica Premium</div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <div id="result" class="result-box" style="display: none;">
-        <h3>Resultado del análisis:</h3>
-        <table id="results-table">
-            <thead>
-                <tr>
-                    <th>Campo</th>
-                    <th>Valor</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Section - Gancho -->
+        <section class="hero">
+            <h1>Análisis Inteligente de Contratos</h1>
+            <p class="subtitle">Automatización de Auditoría Legal con IA</p>
+            <p class="description">
+                Descubre cambios críticos en tus contratos al instante. Nuestra tecnología de análisis inteligente 
+                transforma horas de revisión manual en segundos de precisión quirúrgica, identificando riesgos 
+                legales con certeza científica.
+            </p>
+        </section>
+
+        <!-- Discovery Section - Características -->
+        <section class="discovery">
+            <div class="discovery-card">
+                <div class="icon">🔍</div>
+                <h3>Análisis Profundo</h3>
+                <p>Detección de cambios en cláusulas, términos y condiciones con clasificación automática de riesgo legal.</p>
+            </div>
+            <div class="discovery-card">
+                <div class="icon">⚡</div>
+                <h3>Velocidad Extrema</h3>
+                <p>Procesa contratos en segundos usando visión computacional y modelos de lenguaje avanzados.</p>
+            </div>
+            <div class="discovery-card">
+                <div class="icon">🛡️</div>
+                <h3>Precisión Legal</h3>
+                <p>Estructura de análisis validada por profesionales del derecho, con trazabilidad completa de cada hallazgo.</p>
+            </div>
+        </section>
+
+        <!-- Form Section - Call to Action -->
+        <section class="form-section">
+            <h2>📋 Envía tus Contratos</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="original">Contrato Original</label>
+                    <div class="file-input-label">
+                        <input type="file" id="original" name="original" accept="image/*,.pdf" style="display: none;" required>
+                        <span id="original-label">Haz clic aquí o arrastra el archivo</span>
+                    </div>
+                    <small style="color: #999; display: block; margin-top: 0.5rem;">Formatos soportados: JPG, PNG, PDF (máx. 10MB)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="amendment">Documento de Enmienda</label>
+                    <div class="file-input-label">
+                        <input type="file" id="amendment" name="amendment" accept="image/*,.pdf" style="display: none;" required>
+                        <span id="amendment-label">Haz clic aquí o arrastra el archivo</span>
+                    </div>
+                    <small style="color: #999; display: block; margin-top: 0.5rem;">Formatos soportados: JPG, PNG, PDF (máx. 10MB)</small>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">🚀 Analizar Ahora</button>
+                    <button type="reset" class="btn btn-secondary">↻ Limpiar</button>
+                </div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analizando tus contratos con IA...</p>
+                <p style="font-size: 0.9rem; color: #999;">Este proceso puede tomar unos segundos</p>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection">
+            <h3>
+                📊 Resultados del Análisis
+                <span class="status-badge" id="riskBadge"></span>
+            </h3>
+
+            <div class="analysis-summary" id="analysisSummary"></div>
+
+            <div id="changesList"></div>
+        </section>
+
+        <!-- Footer CTA -->
+        <section class="footer-cta">
+            <h3>¿Listo para Revolucionar tu Proceso Legal?</h3>
+            <p>Automatiza la auditoría de tus contratos hoy mismo con la precisión de Neo Labs</p>
+        </section>
     </div>
 
     <script>
-        async function processFiles() {
-            const formData = new FormData(document.querySelector('form'));
-            const response = await fetch('/process', { method: 'POST', body: formData });
-            const data = await response.json();
-            displayResults(data);
-        }
+        // File input handlers
+        document.getElementById('original').addEventListener('change', function(e) {
+            document.getElementById('original-label').textContent = 
+                e.target.files[0] ? `✓ ${e.target.files[0].name}` : 'Haz clic aquí o arrastra el archivo';
+        });
 
-        function displayResults(data) {
-            const resultDiv = document.getElementById('result');
-            const tbody = document.querySelector('#results-table tbody');
-            tbody.innerHTML = '';
+        document.getElementById('amendment').addEventListener('change', function(e) {
+            document.getElementById('amendment-label').textContent = 
+                e.target.files[0] ? `✓ ${e.target.files[0].name}` : 'Haz clic aquí o arrastra el archivo';
+        });
 
-            for (const [key, value] of Object.entries(data)) {
-                const row = document.createElement('tr');
-                const cellKey = document.createElement('td');
-                const cellValue = document.createElement('td');
-                cellKey.textContent = key;
-                cellValue.textContent = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
-                row.appendChild(cellKey);
-                row.appendChild(cellValue);
-                tbody.appendChild(row);
+        // Drag and drop
+        function setupDragDrop(inputId, labelId) {
+            const input = document.getElementById(inputId);
+            const label = document.querySelector(`[for="${inputId}"]`).parentElement;
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                label.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
 
-            resultDiv.style.display = 'block';
+            ['dragenter', 'dragover'].forEach(eventName => {
+                label.addEventListener(eventName, () => {
+                    label.style.background = 'rgba(212, 175, 55, 0.15)';
+                    label.style.borderColor = 'var(--forest-green)';
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                label.addEventListener(eventName, () => {
+                    label.style.background = 'rgba(212, 175, 55, 0.05)';
+                    label.style.borderColor = 'var(--metallic-gold)';
+                });
+            });
+
+            label.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                input.files = files;
+                document.getElementById(labelId).textContent = `✓ ${files[0].name}`;
+            });
+        }
+
+        setupDragDrop('original', 'original-label');
+        setupDragDrop('amendment', 'amendment-label');
+
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.classList.remove('show');
+
+            const formData = new FormData(this);
+            document.getElementById('loading').classList.add('show');
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                errorMsg.textContent = `❌ Error: ${error.message}`;
+                errorMsg.classList.add('show');
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        });
+
+        function displayResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const summaryCont = document.getElementById('analysisSummary');
+            const changesList = document.getElementById('changesList');
+            const riskBadge = document.getElementById('riskBadge');
+
+            // Clear previous results
+            summaryCont.innerHTML = '';
+            changesList.innerHTML = '';
+
+            // Overall assessment
+            const totalChanges = data.total_changes || 0;
+            const riskLevel = data.overall_risk_assessment || 'Desconocido';
+            
+            riskBadge.className = `status-badge status-${riskLevel.toLowerCase()}`;
+            riskBadge.textContent = `Riesgo: ${riskLevel}`;
+
+            summaryCont.innerHTML = `
+                <div class="summary-stat">
+                    <span class="label">Total de Cambios Detectados:</span>
+                    <span class="value">${totalChanges}</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="label">Evaluación de Riesgo General:</span>
+                    <span class="value status-${riskLevel.toLowerCase()}">${riskLevel}</span>
+                </div>
+            `;
+
+            // Changes list
+            if (data.changes && Array.isArray(data.changes)) {
+                changesList.innerHTML = '<h4 style="margin: 1.5rem 0 1rem; color: var(--forest-green); font-family: Montserrat;">Detalle de Cambios</h4>';
+                data.changes.forEach((change, index) => {
+                    const changeHtml = `
+                        <div class="change-row">
+                            <h4>#${index + 1} - ${change.clause_affected || 'Cambio Detectado'}</h4>
+                            <p style="color: #666; font-size: 0.95rem; margin-bottom: 0.5rem;">
+                                <strong>Tipo:</strong> ${change.change_type || 'N/A'} | 
+                                <strong>Secciones:</strong> ${(change.sections_changed || []).join(', ') || 'N/A'}
+                            </p>
+                            <div style="margin: 0.5rem 0;">
+                                <span class="risk-badge ${change.legal_impact_level?.toLowerCase() || 'bajo'}">
+                                    Impacto Legal: ${change.legal_impact_level || 'Bajo'}
+                                </span>
+                            </div>
+                            <div class="change-detail">
+                                <div class="change-detail-item">
+                                    <label>📄 Texto Original:</label>
+                                    <p>${change.original_text || 'N/A'}</p>
+                                </div>
+                                <div class="change-detail-item">
+                                    <label>✏️ Texto Modificado:</label>
+                                    <p>${change.modified_text || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--light-gray);">
+                                <p><strong>📌 Resumen:</strong> ${change.summary_of_the_change || 'Sin resumen'}</p>
+                                ${change.topics_touched ? `<p style="margin-top: 0.5rem;"><strong>Temas Relacionados:</strong> ${change.topics_touched.join(', ')}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    changesList.innerHTML += changeHtml;
+                });
+            } else {
+                changesList.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No se detectaron cambios</p>';
+            }
+
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     </script>
 </body>
