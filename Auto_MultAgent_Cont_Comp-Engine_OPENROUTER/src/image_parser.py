@@ -17,7 +17,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from langfuse.openai import OpenAI
-from langfuse import observe
+from langfuse.decorators import observe
 
 # ---------------------------------------------------------------------------
 # Configuración del entorno

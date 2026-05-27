@@ -21,8 +21,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from langfuse import Langfuse
-from langfuse import observe
-from langfuse.langchain import CallbackHandler
+from langfuse.decorators import observe
+from langfuse.callback import CallbackHandler
 
 # Asegurar que src/ esté en el path para imports relativos
 sys.path.insert(0, str(Path(__file__).parent.parent))

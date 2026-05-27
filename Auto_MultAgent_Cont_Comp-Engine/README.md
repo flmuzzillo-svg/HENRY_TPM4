@@ -92,6 +92,15 @@ class ContractAnalysisResult(BaseModel):
 
 ---
 
+## Proyecto correcto según tu proveedor
+
+Este repositorio usa la API de OpenAI.
+
+- Si tienes una clave de OpenAI, usa este proyecto: `Auto_MultAgent_Cont_Comp-Engine`.
+- Si tienes una clave de OpenRouter, ejecuta el otro proyecto: `Auto_MultAgent_Cont_Comp-Engine_OPENROUTER`.
+
+En este proyecto debes usar `OPENAI_API_KEY` en el archivo `.env`.
+
 ## Instalación y Configuración
 
 ### 1. Clonar el repositorio y crear el entorno virtual

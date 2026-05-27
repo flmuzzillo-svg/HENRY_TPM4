@@ -51,6 +51,15 @@ trace/generation: run_contract_analysis
 
 ---
 
+## Proyecto correcto según tu proveedor
+
+Este repositorio usa la API de OpenRouter.
+
+- Si tienes una clave de OpenRouter, usa este proyecto: `Auto_MultAgent_Cont_Comp-Engine_OPENROUTER`.
+- Si tienes una clave de OpenAI, usa el otro proyecto: `Auto_MultAgent_Cont_Comp-Engine`.
+
+En este proyecto debes usar `OPENROUTER_API_KEY` en el archivo `.env`.
+
 ## Estructura del Repositorio
 
 ```
