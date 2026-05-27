@@ -3,5 +3,6 @@
     "allow": [
       "Bash(uvicorn *)"
     ]
-  }
+  },
+  "$version": 4
 }
